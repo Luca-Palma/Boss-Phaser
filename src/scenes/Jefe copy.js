@@ -34,7 +34,6 @@ class Jefe extends Phaser.Scene {
         this.background = this.add.tileSprite(663, 298, 1326, 596, 'background'); // creo el fondo con tilesprite para que funcion el desplazamiento 
         this.jugador = this.physics.add.sprite(this.posicionNave.x, this.posicionNave.y, 'supernave');
         this.grupoBalasEnemigas = this.physics.add.group(); // Grupo de balas enemigas
-        this.invulnerable = false; // Estado de invulnerabilidad
 
         //Animacion Supernave
         this.anims.create({
@@ -83,10 +82,9 @@ class Jefe extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();//Controles
 
         //Colisiones
+        this.physics.add.collider(this.jugador, this.grupoNaves, this.gameOver, null, this);
         this.physics.add.collider(this.grupoBalas, this.grupoNaves, this.destruirNave, null, this);
-        this.physics.add.collider(this.jugador, this.grupoNaves, this.colisionConNave, null, this);
-        this.physics.add.collider(this.jugador, this.grupoNaves, this.destruirNave, null, this);
-        this.physics.add.collider(this.jugador, this.grupoBalasEnemigas, this.colisionConBalaEnemiga, null, this);
+        this.physics.add.collider(this.jugador, this.grupoBalasEnemigas, this.gameOver, null, this);
         // Muestra un mensaje
         this.mensaje = this.add.text(663, 150, 'Nivel 4', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
         // Eliminar el mensaje después de 2 segundos
@@ -137,25 +135,6 @@ class Jefe extends Phaser.Scene {
         nave.destroy();
         nave.activo = false; // Cambiar el estado del enemigo a inactivo
     }
-
-    // Colisión con nave enemiga
-    colisionConNave(jugador, nave) {
-        nave.destroy(); // Siempre destruir la nave
-
-        if (!this.invulnerable) { 
-            this.gameOver(jugador); // Solo si no es invulnerable, reducir vida
-        }
-    }
-
-    // Colisión con bala enemiga
-    colisionConBalaEnemiga(jugador, bala) {
-        bala.destroy(); // Siempre destruir la bala
-
-        if (!this.invulnerable) { 
-            this.gameOver(jugador); // Solo si no es invulnerable, reducir vida
-        }
-    
-    }
     /** Actualizacion del juego */
     update() {
         this.background.tilePositionY -= 2; //Ajusta la velocidad de desplazamiento del fondo
@@ -190,10 +169,10 @@ class Jefe extends Phaser.Scene {
 
     
     /** Metodo Game Over para mostrar la pantalla final en caso de perder */
-    gameOver(jugador) {
+    gameOver(jugador, objeto) {
         this.vidas--; // Reduce una vida
         this.textoVidas.setText('Vidas: ' + this.vidas); // Actualiza el texto de vidas
-    
+
         if (this.vidas <= 0) {
             this.physics.pause(); // Pausar el juego
             if (this.puntaje > this.puntajeMaximo) {
@@ -201,14 +180,16 @@ class Jefe extends Phaser.Scene {
             }
             this.scene.start('GameOver', { puntaje: this.puntaje, puntajeMaximo: this.puntajeMaximo });
         } else {
-            // Activa invulnerabilidad temporal
-            this.invulnerable = true;
-            this.jugador.setTint(0xff0000); // Temporada de invulnerabilidad visual
-            this.time.delayedCall(1000, () => {
-                this.jugador.clearTint(); // Elimina el tinte después de 1 segundo
-                this.invulnerable = false; // Elimina la invulnerabilidad
-            });
+            this.reubicarJugador();
         }
+    }
+
+    reubicarJugador() {
+        this.jugador.setPosition(this.scale.width / 2, this.scale.height - 100); // Reposiciona el jugador
+        this.jugador.setTint(0xff0000); // Temporada de invulnerabilidad
+        this.time.delayedCall(1000, () => {
+            this.jugador.clearTint(); // Elimina el tinte después de 1 segundo
+        });
     }
 } 
 

@@ -7,6 +7,7 @@ import Escena4 from "./scenes/Escena4.js"
 import Bonustrack from "./scenes/Bonustrack.js"
 import Victory from "./scenes/Victory.js"
 import Jefe from "./scenes/Jefe.js"
+import Jefe2 from "./scenes/Jefe2.js"
 
 const config = {
     type: Phaser.AUTO,
@@ -19,6 +20,6 @@ const config = {
             debug: false
         }
     },
-    scene: [Inicio, Escena1, GameOver, Escena2, Escena3, Escena4, Bonustrack, Victory, Jefe],
+    scene: [Inicio, Escena1, GameOver, Escena2, Escena3, Escena4, Bonustrack, Victory, Jefe, Jefe2],
 };
 let game = new Phaser.Game(config);
